@@ -52,8 +52,6 @@ public class AzulState implements GameState {
 	 * box, and moving the first player tile back to the table (and setting the new
 	 * current player based on who had the first player tile).
 	 * 
-	 * @param player
-	 *            The id of the player making the move
 	 * @param tileLocation
 	 *            From where the player is taking tiles
 	 * @param tileChoice
@@ -63,8 +61,7 @@ public class AzulState implements GameState {
 	 *            The index of the pattern line that the player will add the
 	 *            selected tiles to (use -1 to add directly to the floor line)
 	 */
-	public void makeMove(final int player, final TileLocation tileLocation, final String tileChoice,
-			final int rowChoice) {
+	public void makeMove(final TileLocation tileLocation, final String tileChoice, final int rowChoice) {
 
 	}
 
