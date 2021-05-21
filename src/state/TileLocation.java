@@ -20,4 +20,11 @@ abstract class TileLocation {
 	TileLocation() {
 		this.tiles = new HashMap<>();
 	}
+
+	/**
+	 * @return Whether or not this tile location has no tiles
+	 */
+	boolean isEmpty() {
+		return this.tiles.isEmpty();
+	}
 }

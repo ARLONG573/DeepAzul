@@ -1,6 +1,8 @@
 package state;
 
 import java.util.List;
+import java.util.Scanner;
+import java.util.regex.Pattern;
 
 import api.GameState;
 
@@ -28,7 +30,7 @@ public class AzulState implements GameState {
 	private int currentPlayer;
 	private int currentRound;
 
-	public AzulState(final int numPlayers) {
+	public AzulState(final int numPlayers) throws IllegalArgumentException {
 		if (numPlayers < 2 || numPlayers > 4) {
 			throw new IllegalArgumentException("Tried to start a game with " + numPlayers + " players (2-4 required)");
 		}
@@ -49,6 +51,8 @@ public class AzulState implements GameState {
 		this.lastPlayer = -1;
 		this.currentPlayer = 0;
 		this.currentRound = 1;
+
+		this.refillDisplays();
 	}
 
 	/**
@@ -59,7 +63,8 @@ public class AzulState implements GameState {
 	 * current player based on who had the first player tile).
 	 * 
 	 * @param tileLocation
-	 *            From where the player is taking tiles
+	 *            Number of the tile location from where the player is taking tiles
+	 *            (use 0 if taking from the table)
 	 * @param tileChoice
 	 *            The color of tiles that the player has decided to take from the
 	 *            given location
@@ -67,8 +72,57 @@ public class AzulState implements GameState {
 	 *            The index of the pattern line that the player will add the
 	 *            selected tiles to (use -1 to add directly to the floor line)
 	 */
-	public void makeMove(final TileLocation tileLocation, final String tileChoice, final int rowChoice) {
+	public void makeMove(final int tileLocation, final String tileChoice, final int rowChoice) {
 
+	}
+
+	/**
+	 * This method takes in user input to draw tiles from the bag and put them in
+	 * the displays
+	 */
+	private void refillDisplays() {
+		System.out.println("Refilling displays...");
+
+		// check that all tile locations are empty before taking in user input
+		for (final TileLocation tileLocation : this.tileLocations) {
+			if (!tileLocation.isEmpty()) {
+				throw new IllegalStateException("Tried to refill displays while tiles are still in play");
+			}
+		}
+
+		// add the lid tiles back into the bag if there are not enough tiles in the bag
+		// to fill all of the displays
+		if (this.tileBag.getNumTilesRemaining() < 4 * (this.tileLocations.length - 1)) {
+			this.tileBag.addLidTilesToBag();
+		}
+
+		// read in user input and add to the displays from the bag
+		final Scanner in = new Scanner(System.in);
+		for (int i = 1; i < this.tileLocations.length; i++) {
+			String newTiles = null;
+			boolean tryAgain = true;
+
+			while (tryAgain) {
+				tryAgain = false;
+				System.out.print("Display " + i + ": ");
+				newTiles = in.next().toUpperCase();
+				if (!Pattern.matches("[BYRKW]{4}", newTiles)) {
+					System.out.println("Tiles must be 4 of {BYRKW}");
+					tryAgain = true;
+					continue;
+				}
+				try {
+					this.tileBag.removeTiles(newTiles);
+					// TODO this.tileLocations[i].addTiles(newTiles);
+				} catch (final IllegalArgumentException e) {
+					System.out.println(e.getMessage());
+					tryAgain = true;
+				}
+			}
+
+		}
+
+		in.close();
 	}
 
 	/**
@@ -112,6 +166,7 @@ public class AzulState implements GameState {
 	@Override
 	public String toString() {
 		final StringBuilder sb = new StringBuilder();
+		sb.append("===================================================================\n");
 		sb.append("Last Player = " + this.lastPlayer + "\n");
 		sb.append("Current Player = " + this.currentPlayer + "\n");
 		sb.append("Current Round = " + this.currentRound + "\n");

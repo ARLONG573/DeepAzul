@@ -30,6 +30,71 @@ class TileBag {
 		this.tilesInLid = new HashMap<>();
 	}
 
+	void removeTiles(final String tilesToRemove) throws IllegalArgumentException {
+		if (tilesToRemove.length() != 4) {
+			throw new IllegalArgumentException(
+					"Tried to remove " + tilesToRemove.length() + " tiles from the bag (4 required)");
+		}
+
+		// check that the removal is possible before attempting it
+		final Map<String, Integer> removals = new HashMap<>();
+		for (int i = 0; i < 4; i++) {
+			final String tileToRemove = tilesToRemove.substring(i, i + 1);
+
+			removals.putIfAbsent(tileToRemove, 0);
+			removals.put(tileToRemove, removals.get(tileToRemove) + 1);
+		}
+
+		for (final Map.Entry<String, Integer> removalEntry : removals.entrySet()) {
+			final String removalColor = removalEntry.getKey();
+			final Integer removalCount = removalEntry.getValue();
+
+			if (!this.tilesInBag.containsKey(removalColor) || this.tilesInBag.get(removalColor) < removalCount) {
+				throw new IllegalArgumentException("Tried to make an impossible removal: " + tilesToRemove);
+			}
+		}
+
+		for (final Map.Entry<String, Integer> removalEntry : removals.entrySet()) {
+			final String removalColor = removalEntry.getKey();
+			final Integer removalCount = removalEntry.getValue();
+
+			this.tilesInBag.put(removalColor, this.tilesInBag.get(removalColor) - removalCount);
+
+			if (this.tilesInBag.get(removalColor) == 0) {
+				this.tilesInBag.remove(removalColor);
+			}
+		}
+	}
+
+	/**
+	 * @return The number of tiles left in the bag
+	 */
+	int getNumTilesRemaining() {
+		int numTilesRemaining = 0;
+
+		for (final Integer numOfColorRemaining : this.tilesInBag.values()) {
+			numTilesRemaining += numOfColorRemaining;
+		}
+
+		return numTilesRemaining;
+	}
+
+	/**
+	 * This method takes the tiles that are in the lid of the game box and moves
+	 * them to the bag.
+	 */
+	void addLidTilesToBag() {
+		for (final Map.Entry<String, Integer> lidEntry : this.tilesInLid.entrySet()) {
+			final String color = lidEntry.getKey();
+			final Integer numOfColor = lidEntry.getValue();
+
+			this.tilesInBag.putIfAbsent(color, 0);
+			this.tilesInBag.put(color, this.tilesInBag.get(color) + numOfColor);
+		}
+
+		this.tilesInLid.clear();
+	}
+
 	/**
 	 * {@inheritDoc}
 	 */
