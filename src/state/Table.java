@@ -8,4 +8,12 @@ package state;
  */
 class Table extends TileLocation {
 
+	private boolean hasFirstPlayerTile;
+
+	Table() {
+		super();
+
+		this.hasFirstPlayerTile = true;
+	}
+
 }

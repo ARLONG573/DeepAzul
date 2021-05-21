@@ -21,12 +21,12 @@ class TileBag {
 
 	TileBag() {
 		this.tilesInBag = new HashMap<>();
-		this.tilesInLid = new HashMap<>();
-
 		this.tilesInBag.put("B", 20);
 		this.tilesInBag.put("Y", 20);
 		this.tilesInBag.put("R", 20);
 		this.tilesInBag.put("K", 20);
 		this.tilesInBag.put("W", 20);
+
+		this.tilesInLid = new HashMap<>();
 	}
 }

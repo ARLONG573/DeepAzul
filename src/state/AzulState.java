@@ -42,7 +42,7 @@ public class AzulState implements GameState {
 		}
 
 		this.lastPlayer = -1;
-		this.currentPlayer = 1;
+		this.currentPlayer = 0;
 	}
 
 	/**
