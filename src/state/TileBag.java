@@ -29,4 +29,15 @@ class TileBag {
 
 		this.tilesInLid = new HashMap<>();
 	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String toString() {
+		final StringBuilder sb = new StringBuilder();
+		sb.append("Tiles in bag = " + this.tilesInBag + "\n");
+		sb.append("Tiles in lid = " + this.tilesInLid);
+		return sb.toString();
+	}
 }

@@ -7,4 +7,11 @@ package state;
  */
 class Display extends TileLocation {
 
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String toString() {
+		return "Display: " + this.tiles;
+	}
 }

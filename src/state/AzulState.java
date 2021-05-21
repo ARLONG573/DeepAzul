@@ -26,8 +26,13 @@ public class AzulState implements GameState {
 
 	private int lastPlayer;
 	private int currentPlayer;
+	private int currentRound;
 
 	public AzulState(final int numPlayers) {
+		if (numPlayers < 2 || numPlayers > 4) {
+			throw new IllegalArgumentException("Tried to start a game with " + numPlayers + " players (2-4 required)");
+		}
+
 		this.tileBag = new TileBag();
 
 		this.tileLocations = new TileLocation[2 * numPlayers + 2]; // 2n + 1 displays, plus one for the table
@@ -43,6 +48,7 @@ public class AzulState implements GameState {
 
 		this.lastPlayer = -1;
 		this.currentPlayer = 0;
+		this.currentRound = 1;
 	}
 
 	/**
@@ -100,4 +106,23 @@ public class AzulState implements GameState {
 		return null;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String toString() {
+		final StringBuilder sb = new StringBuilder();
+		sb.append("Last Player = " + this.lastPlayer + "\n");
+		sb.append("Current Player = " + this.currentPlayer + "\n");
+		sb.append("Current Round = " + this.currentRound + "\n");
+		sb.append(this.tileBag);
+		for (final TileLocation tileLocation : this.tileLocations) {
+			sb.append("\n" + tileLocation);
+		}
+		for (int i = 0; i < this.playerBoards.length; i++) {
+			sb.append("\n===================================================================");
+			sb.append("\nPlayer " + i + "\n" + this.playerBoards[i]);
+		}
+		return sb.toString();
+	}
 }

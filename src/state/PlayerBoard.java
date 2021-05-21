@@ -49,4 +49,32 @@ class PlayerBoard {
 
 		this.score = 0;
 	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String toString() {
+		final StringBuilder sb = new StringBuilder();
+		sb.append("Score = " + this.score + "\n");
+		sb.append("Pattern lines = \n");
+		for (int i = 0; i < 5; i++) {
+			for (int j = 0; j < 5; j++) {
+				sb.append(this.patternLines[i][j]);
+			}
+			sb.append("\n");
+		}
+		sb.append("Wall = \n");
+		for (int i = 0; i < 5; i++) {
+			for (int j = 0; j < 5; j++) {
+				sb.append(this.wall[i][j]);
+			}
+			sb.append("\n");
+		}
+		sb.append("Floor line = \n");
+		for (int i = 0; i < 7; i++) {
+			sb.append(this.floorLine[i]);
+		}
+		return sb.toString();
+	}
 }

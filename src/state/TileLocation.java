@@ -15,7 +15,7 @@ import java.util.Map;
  */
 abstract class TileLocation {
 
-	private final Map<String, Integer> tiles;
+	protected final Map<String, Integer> tiles;
 
 	TileLocation() {
 		this.tiles = new HashMap<>();

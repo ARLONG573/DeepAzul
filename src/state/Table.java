@@ -16,4 +16,11 @@ class Table extends TileLocation {
 		this.hasFirstPlayerTile = true;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String toString() {
+		return "Table: " + this.tiles + ", hasFirstPlayerTile = " + this.hasFirstPlayerTile;
+	}
 }
