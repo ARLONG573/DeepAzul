@@ -46,6 +46,29 @@ public class AzulState implements GameState {
 	}
 
 	/**
+	 * This method applies the given move to the current state. If the move takes
+	 * the last tiles for the round, this method will update the game state as much
+	 * as possible via scoring, moving the necessary tiles to the lid of the game
+	 * box, and moving the first player tile back to the table (and setting the new
+	 * current player based on who had the first player tile).
+	 * 
+	 * @param player
+	 *            The id of the player making the move
+	 * @param tileLocation
+	 *            From where the player is taking tiles
+	 * @param tileChoice
+	 *            The color of tiles that the player has decided to take from the
+	 *            given location
+	 * @param rowChoice
+	 *            The index of the pattern line that the player will add the
+	 *            selected tiles to (use -1 to add directly to the floor line)
+	 */
+	public void makeMove(final int player, final TileLocation tileLocation, final String tileChoice,
+			final int rowChoice) {
+
+	}
+
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
