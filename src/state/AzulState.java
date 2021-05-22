@@ -105,7 +105,7 @@ public class AzulState implements GameState {
 			while (tryAgain) {
 				tryAgain = false;
 				System.out.print("Display " + i + ": ");
-				newTiles = in.next().toUpperCase();
+				newTiles = in.nextLine().toUpperCase();
 				if (!Pattern.matches("[BYRKW]{4}", newTiles)) {
 					System.out.println("Tiles must be 4 of {BYRKW}");
 					tryAgain = true;

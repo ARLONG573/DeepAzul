@@ -12,13 +12,20 @@ public class DeepAzulMain {
 	public static void main(final String[] args) {
 		final Scanner in = new Scanner(System.in);
 
+		int numPlayers = 0;
 		AzulState state = null;
 		boolean tryAgain = true;
 
 		while (tryAgain) {
 			tryAgain = false;
 			System.out.print("How many players? ");
-			final int numPlayers = in.nextInt();
+			try {
+				numPlayers = Integer.parseInt(in.nextLine());
+			} catch (final NumberFormatException e) {
+				System.out.println("Please enter a number from 2-4");
+				tryAgain = true;
+				continue;
+			}
 			try {
 				state = new AzulState(numPlayers);
 			} catch (final IllegalArgumentException e) {
