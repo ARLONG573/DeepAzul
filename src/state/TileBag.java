@@ -2,6 +2,7 @@ package state;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 /**
  * This class represents the bag of tiles in the game and keeps track of the
@@ -30,10 +31,18 @@ class TileBag {
 		this.tilesInLid = new HashMap<>();
 	}
 
-	void removeTiles(final String tilesToRemove) throws IllegalArgumentException {
-		if (tilesToRemove.length() != 4) {
-			throw new IllegalArgumentException(
-					"Tried to remove " + tilesToRemove.length() + " tiles from the bag (4 required)");
+	/**
+	 * @param tilesToRemove
+	 *            A string representing the tiles that should be removed -
+	 *            tilesToRemove should match the regex pattern [BYRKW]{4}
+	 * @throws IllegalArgumentException
+	 *             If tilesToRemove is not formatted correctly or if tilesToRemove
+	 *             is formatted correctly, but the removal is not possible given the
+	 *             state of the bag
+	 */
+	void removeTilesFromInput(final String tilesToRemove) throws IllegalArgumentException {
+		if (!Pattern.matches("[BYRKW]{4}", tilesToRemove)) {
+			throw new IllegalArgumentException("Tiles must be 4 of {BYRKW}");
 		}
 
 		// check that the removal is possible before attempting it

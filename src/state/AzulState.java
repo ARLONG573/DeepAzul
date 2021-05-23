@@ -2,7 +2,6 @@ package state;
 
 import java.util.List;
 import java.util.Scanner;
-import java.util.regex.Pattern;
 
 import api.GameState;
 
@@ -52,7 +51,7 @@ public class AzulState implements GameState {
 		this.currentPlayer = 0;
 		this.currentRound = 1;
 
-		this.refillDisplays();
+		this.refillDisplaysFromInput();
 	}
 
 	/**
@@ -80,8 +79,8 @@ public class AzulState implements GameState {
 	 * This method takes in user input to draw tiles from the bag and put them in
 	 * the displays
 	 */
-	private void refillDisplays() {
-		System.out.println("Refilling displays...");
+	private void refillDisplaysFromInput() {
+		System.out.println("Refilling displays from input...");
 
 		// check that all tile locations are empty before taking in user input
 		for (final TileLocation tileLocation : this.tileLocations) {
@@ -91,7 +90,9 @@ public class AzulState implements GameState {
 		}
 
 		// add the lid tiles back into the bag if there are not enough tiles in the bag
-		// to fill all of the displays
+		// to fill all of the displays - we can only do this ahead of time because we
+		// are receiving user input to determine which tiles are drawn instead of
+		// drawing them ourselves randomly
 		if (this.tileBag.getNumTilesRemaining() < 4 * (this.tileLocations.length - 1)) {
 			this.tileBag.addLidTilesToBag();
 		}
@@ -106,15 +107,10 @@ public class AzulState implements GameState {
 				tryAgain = false;
 				System.out.print("Display " + i + ": ");
 				newTiles = in.nextLine().toUpperCase();
-				if (!Pattern.matches("[BYRKW]{4}", newTiles)) {
-					System.out.println("Tiles must be 4 of {BYRKW}");
-					tryAgain = true;
-					continue;
-				}
 				try {
-					this.tileBag.removeTiles(newTiles);
-					// TODO this.tileLocations[i].addTiles(newTiles);
-				} catch (final IllegalArgumentException e) {
+					this.tileBag.removeTilesFromInput(newTiles);
+					this.tileLocations[i].addTilesFromInput(newTiles);
+				} catch (final IllegalArgumentException | IllegalStateException e) {
 					System.out.println(e.getMessage());
 					tryAgain = true;
 				}
