@@ -17,6 +17,27 @@ class Table extends TileLocation {
 	}
 
 	/**
+	 * @return Whether or not the table still has the first player tile
+	 */
+	boolean hasFirstPlayerTile() {
+		return this.hasFirstPlayerTile;
+	}
+
+	/**
+	 * Removes the first player tile to the table
+	 */
+	void removeFirstPlayerTile() {
+		this.hasFirstPlayerTile = false;
+	}
+
+	/**
+	 * Adds the first player tile to the table
+	 */
+	void addFirstPlayerTile() {
+		this.hasFirstPlayerTile = true;
+	}
+
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override

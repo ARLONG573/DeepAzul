@@ -34,6 +34,31 @@ class TileBag {
 	}
 
 	/**
+	 * @param numTiles
+	 *            The number of tiles to add
+	 * @param color
+	 *            Is assumed to be one of {B, Y, R, K, W}
+	 */
+	void addTilesToLid(final int numTiles, final String color) {
+		this.tilesInLid.putIfAbsent(color, 0);
+		this.tilesInLid.put(color, this.tilesInLid.get(color) + numTiles);
+	}
+
+	/**
+	 * @param tilesToAdd
+	 *            Is assumed to have keys in the set {B, Y, R, K, W} and values
+	 *            greater than zero
+	 */
+	void addTilesToLid(final Map<String, Integer> tilesToAdd) {
+		for (final Map.Entry<String, Integer> entry : tilesToAdd.entrySet()) {
+			final String color = entry.getKey();
+			final Integer count = entry.getValue();
+
+			this.addTilesToLid(count, color);
+		}
+	}
+
+	/**
 	 * @param tilesToRemove
 	 *            A string representing the tiles that should be removed -
 	 *            tilesToRemove should match the regex pattern [BYRKW]{4}

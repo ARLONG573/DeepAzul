@@ -2,6 +2,7 @@ package state;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 import java.util.regex.Pattern;
 
@@ -30,6 +31,7 @@ public class AzulState implements GameState {
 	private int lastPlayer;
 	private int currentPlayer;
 	private int currentRound;
+	private int nextRoundFirstPlayer;
 
 	/**
 	 * @param numPlayers
@@ -60,6 +62,7 @@ public class AzulState implements GameState {
 		this.lastPlayer = -1;
 		this.currentPlayer = 0;
 		this.currentRound = 1;
+		this.nextRoundFirstPlayer = -1;
 
 		this.refillDisplaysFromInput(in);
 	}
@@ -80,11 +83,14 @@ public class AzulState implements GameState {
 	 * @param rowChoice
 	 *            The index of the pattern line that the player will add the
 	 *            selected tiles to (use -1 to add directly to the floor line)
+	 * @param in
+	 *            The Scanner used to read in the user input to refill the game
+	 *            displays
 	 * @throws IllegalArgumentException
 	 *             If the chosen tile location has no tiles to take, if tileLocation
 	 *             does not have the chosen tile, or if the chosen row is not legal
 	 */
-	public void makeMove(final int tileLocation, final String tileChoice, final int rowChoice)
+	public void makeMove(final int tileLocation, final String tileChoice, final int rowChoice, final Scanner in)
 			throws IllegalArgumentException {
 
 		// check that the tile location is a valid number
@@ -123,7 +129,72 @@ public class AzulState implements GameState {
 					"Tried to add the color " + tileChoice + " to row " + rowChoice + ", but it is not legal to do so");
 		}
 
-		// TODO make the move!
+		// if we haven't thrown an exception yet, then the turn is valid
+
+		// remove all of the chosen color from the chosen location
+		final int numRemoved = this.tileLocations[tileLocation].removeAll(tileChoice);
+
+		// add the tiles to the given row and save the amount of tiles that need to be
+		// sent to the box due to floor line overflow
+		final int numExcess = this.playerBoards[currentPlayer].addTiles(numRemoved, tileChoice, rowChoice);
+
+		// add excess tiles to the lid of the box
+		if (numExcess > 0) {
+			this.tileBag.addTilesToLid(numExcess, tileChoice);
+		}
+
+		// if we took from the table, add the first player tile to the floor line if no
+		// one has taken it yet
+		if (tileLocation == 0) {
+			final Table table = (Table) this.tileLocations[0];
+
+			if (table.hasFirstPlayerTile()) {
+				table.removeFirstPlayerTile();
+				this.playerBoards[currentPlayer].addFirstPlayerTile();
+				this.nextRoundFirstPlayer = this.currentPlayer;
+			}
+		} else {
+			// if we took from a display, move the remaining tiles onto the table
+			final Map<String, Integer> remainingTiles = this.tileLocations[tileLocation].removeAllTiles();
+			this.tileLocations[0].addTiles(remainingTiles);
+		}
+
+		// the turn is over, so update the last player
+		this.lastPlayer = this.currentPlayer;
+
+		// if the round is not over, update current player and return
+		boolean roundOver = true;
+		for (final TileLocation location : this.tileLocations) {
+			if (!location.isEmpty()) {
+				roundOver = false;
+				break;
+			}
+		}
+
+		if (!roundOver) {
+			this.currentPlayer = (this.currentPlayer < (this.tileLocations.length - 2) / 2 - 1) ? this.currentPlayer + 1
+					: 0;
+			return;
+		}
+
+		// if the round is over, proceed to the scoring phase and set up next round if
+		// the game is not over
+
+		// scoring
+		for (final PlayerBoard playerBoard : this.playerBoards) {
+			final Map<String, Integer> tilesToLid = playerBoard.doScoring();
+			this.tileBag.addTilesToLid(tilesToLid);
+		}
+
+		// next round setup
+		this.currentRound++;
+		this.currentPlayer = this.nextRoundFirstPlayer;
+
+		if (this.currentRound <= 3) {
+			this.refillDisplaysFromInput(in);
+			((Table) this.tileLocations[0]).addFirstPlayerTile();
+			this.nextRoundFirstPlayer = -1;
+		}
 	}
 
 	/**
@@ -227,6 +298,7 @@ public class AzulState implements GameState {
 		sb.append("Last Player = " + this.lastPlayer + "\n");
 		sb.append("Current Player = " + this.currentPlayer + "\n");
 		sb.append("Current Round = " + this.currentRound + "\n");
+		sb.append("Player to start next round = " + this.nextRoundFirstPlayer + "\n");
 		sb.append(this.tileBag);
 		for (final TileLocation tileLocation : this.tileLocations) {
 			sb.append("\n" + tileLocation);

@@ -51,6 +51,41 @@ abstract class TileLocation {
 	}
 
 	/**
+	 * @return The tiles that were removed
+	 */
+	Map<String, Integer> removeAllTiles() {
+		final Map<String, Integer> removedTiles = new HashMap<>(this.tiles);
+		this.tiles.clear();
+		return removedTiles;
+	}
+
+	/**
+	 * @param tilesToAdd
+	 *            A map that is assumed to have keys in the set {B, Y, R, K, W} and
+	 *            values greater than zero
+	 */
+	void addTiles(final Map<String, Integer> tilesToAdd) {
+		for (final Map.Entry<String, Integer> addEntry : tilesToAdd.entrySet()) {
+			final String color = addEntry.getKey();
+			final Integer count = addEntry.getValue();
+
+			this.tiles.putIfAbsent(color, 0);
+			this.tiles.put(color, this.tiles.get(color) + count);
+		}
+	}
+
+	/**
+	 * Removes all tiles of the given color from this tile location.
+	 * 
+	 * @param color
+	 *            Is assumed to be one of {B, Y, R, K, W}
+	 * @return The number of tiles that were removed
+	 */
+	int removeAll(final String color) {
+		return this.tiles.remove(color);
+	}
+
+	/**
 	 * @param tile
 	 *            Is assumed to be one of {B, Y, R, K, W}
 	 * @return Whether or not this tile location has at least one of the specified

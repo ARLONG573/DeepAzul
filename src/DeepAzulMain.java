@@ -9,9 +9,9 @@ import state.AzulState;
  */
 public class DeepAzulMain {
 
-	private static final Scanner in = new Scanner(System.in);
-
 	public static void main(final String[] args) {
+		final Scanner in = new Scanner(System.in);
+
 		// initialize game state
 		int numPlayers = 0;
 		AzulState state = null;
@@ -96,7 +96,7 @@ public class DeepAzulMain {
 					}
 
 					try {
-						state.makeMove(tileLocation, tileChoice, rowChoice);
+						state.makeMove(tileLocation, tileChoice, rowChoice, in);
 					} catch (final IllegalArgumentException e) {
 						System.out.println(e.getMessage());
 						tryAgain = true;
