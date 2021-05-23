@@ -29,7 +29,15 @@ public class AzulState implements GameState {
 	private int currentPlayer;
 	private int currentRound;
 
-	public AzulState(final int numPlayers) throws IllegalArgumentException {
+	/**
+	 * @param numPlayers
+	 *            The number of players to create the game for
+	 * @param in
+	 *            The Scanner used to read in the user input to refill the game
+	 *            displays
+	 * @throws IllegalArgumentException
+	 */
+	public AzulState(final int numPlayers, final Scanner in) throws IllegalArgumentException {
 		if (numPlayers < 2 || numPlayers > 4) {
 			throw new IllegalArgumentException("Tried to start a game with " + numPlayers + " players (2-4 required)");
 		}
@@ -51,7 +59,7 @@ public class AzulState implements GameState {
 		this.currentPlayer = 0;
 		this.currentRound = 1;
 
-		this.refillDisplaysFromInput();
+		this.refillDisplaysFromInput(in);
 	}
 
 	/**
@@ -78,8 +86,11 @@ public class AzulState implements GameState {
 	/**
 	 * This method takes in user input to draw tiles from the bag and put them in
 	 * the displays
+	 * 
+	 * @param in
+	 *            The Scanner used to read in the user input
 	 */
-	private void refillDisplaysFromInput() {
+	private void refillDisplaysFromInput(final Scanner in) {
 		System.out.println("Refilling displays from input...");
 
 		// check that all tile locations are empty before taking in user input
@@ -98,7 +109,6 @@ public class AzulState implements GameState {
 		}
 
 		// read in user input and add to the displays from the bag
-		final Scanner in = new Scanner(System.in);
 		for (int i = 1; i < this.tileLocations.length; i++) {
 			String newTiles = null;
 			boolean tryAgain = true;
@@ -117,8 +127,13 @@ public class AzulState implements GameState {
 			}
 
 		}
+	}
 
-		in.close();
+	/**
+	 * @return The player who makes the next move from this state
+	 */
+	public int getCurrentPlayer() {
+		return this.currentPlayer;
 	}
 
 	/**
