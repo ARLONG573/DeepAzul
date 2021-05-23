@@ -84,11 +84,13 @@ public class DeepAzulMain {
 					System.out.print("Which color? Use one of {B, Y, R, K, W}: ");
 					tileChoice = in.nextLine().toUpperCase();
 
-					System.out.print("In which row on the player board will you place the tile(s)? Use 0-4: ");
+					System.out.print(
+							"In which row on the player board will you place the tile(s)? Use 0-4, or -1 to put them directly in your floor line: ");
 					try {
 						rowChoice = Integer.parseInt(in.nextLine());
 					} catch (final NumberFormatException e) {
-						System.out.println("Please enter a number from 0-4");
+						System.out.println(
+								"Please enter a number from 0-4, or -1 to put the tiles directly in your floor line");
 						tryAgain = true;
 						continue;
 					}
@@ -107,5 +109,7 @@ public class DeepAzulMain {
 		}
 
 		in.close();
+
+		System.out.println("Winning players = " + state.getWinningPlayers());
 	}
 }

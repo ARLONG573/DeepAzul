@@ -1,7 +1,9 @@
 package state;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+import java.util.regex.Pattern;
 
 import api.GameState;
 
@@ -85,6 +87,43 @@ public class AzulState implements GameState {
 	public void makeMove(final int tileLocation, final String tileChoice, final int rowChoice)
 			throws IllegalArgumentException {
 
+		// check that the tile location is a valid number
+		if (tileLocation < 0 || tileLocation > this.tileLocations.length - 1) {
+			throw new IllegalArgumentException("Tried to make a move from tile location " + tileLocation + " (0-"
+					+ (this.tileLocations.length - 1) + " required");
+		}
+
+		// check that tile location is not empty
+		if (this.tileLocations[tileLocation].isEmpty()) {
+			throw new IllegalArgumentException(
+					"Tried to take a tile from an empty tile location (" + tileLocation + ")");
+		}
+
+		// check that tileChoice is formatted correctly
+		if (!Pattern.matches("[BYRKW]", tileChoice)) {
+			throw new IllegalArgumentException(
+					"Tried to take an invalid tile (" + tileChoice + ", one of {B, Y, R, K, W} required)");
+		}
+
+		// check that the tile location has the chosen tile
+		if (!this.tileLocations[tileLocation].hasTile(tileChoice)) {
+			throw new IllegalArgumentException("Tried to take " + tileChoice + " from tile location " + tileLocation
+					+ ", but there is no such tile there");
+		}
+
+		// check that the row choice is a valid number
+		if (rowChoice < -1 || rowChoice > 4) {
+			throw new IllegalArgumentException("Tried to add tiles to row " + rowChoice
+					+ " (0-4 required, or -1 to add tiles directly to your floor line");
+		}
+
+		// check that the chosen color is allowed to be placed in the chosen row
+		if (rowChoice != -1 && !this.playerBoards[currentPlayer].isLegalPlacement(tileChoice, rowChoice)) {
+			throw new IllegalArgumentException(
+					"Tried to add the color " + tileChoice + " to row " + rowChoice + ", but it is not legal to do so");
+		}
+
+		// TODO make the move!
 	}
 
 	/**
@@ -171,8 +210,11 @@ public class AzulState implements GameState {
 	 */
 	@Override
 	public List<Integer> getWinningPlayers() {
-		// TODO Auto-generated method stub
-		return null;
+		final List<Integer> winningPlayers = new ArrayList<>();
+
+		// TODO implement this method
+
+		return winningPlayers;
 	}
 
 	/**

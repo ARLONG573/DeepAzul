@@ -16,6 +16,8 @@ import java.util.regex.Pattern;
  */
 abstract class TileLocation {
 
+	// it is vital that entries with value=0 are removed from the map so that
+	// methods such as isEmpty() behave correctly
 	protected final Map<String, Integer> tiles;
 
 	TileLocation() {
@@ -46,6 +48,16 @@ abstract class TileLocation {
 			this.tiles.putIfAbsent(tileToAdd, 0);
 			this.tiles.put(tileToAdd, this.tiles.get(tileToAdd) + 1);
 		}
+	}
+
+	/**
+	 * @param tile
+	 *            Is assumed to be one of {B, Y, R, K, W}
+	 * @return Whether or not this tile location has at least one of the specified
+	 *         tile
+	 */
+	boolean hasTile(final String tile) {
+		return this.tiles.containsKey(tile);
 	}
 
 	/**

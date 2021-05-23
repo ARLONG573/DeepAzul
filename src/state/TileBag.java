@@ -17,6 +17,8 @@ import java.util.regex.Pattern;
  */
 class TileBag {
 
+	// it is vital that entries with value=0 are removed from the maps so that
+	// methods such as isEmpty() behave correctly
 	private final Map<String, Integer> tilesInBag;
 	private final Map<String, Integer> tilesInLid;
 
@@ -69,6 +71,7 @@ class TileBag {
 
 			this.tilesInBag.put(removalColor, this.tilesInBag.get(removalColor) - removalCount);
 
+			// remove entries for colors that are no longer in the bag
 			if (this.tilesInBag.get(removalColor) == 0) {
 				this.tilesInBag.remove(removalColor);
 			}

@@ -51,6 +51,26 @@ class PlayerBoard {
 	}
 
 	/**
+	 * @param color
+	 *            Is assumed to be one of {B, Y, R, K, W}
+	 * @param row
+	 *            Is assumed to be 0-4
+	 * @return Whether or not it is legal to place tiles of the given color into the
+	 *         given row
+	 */
+	boolean isLegalPlacement(final String color, final int row) {
+		// check if our wall already has the tile of the given color
+		for (int i = 0; i < 5; i++) {
+			if (this.wall[row][i].equals(color)) {
+				return false;
+			}
+		}
+
+		// check if another color is already in the pattern line
+		return this.patternLines[row][4].equals("_") || this.patternLines[row][4].equals(color);
+	}
+
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
