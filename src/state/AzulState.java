@@ -78,8 +78,12 @@ public class AzulState implements GameState {
 	 * @param rowChoice
 	 *            The index of the pattern line that the player will add the
 	 *            selected tiles to (use -1 to add directly to the floor line)
+	 * @throws IllegalArgumentException
+	 *             If the chosen tile location has no tiles to take, if tileLocation
+	 *             does not have the chosen tile, or if the chosen row is not legal
 	 */
-	public void makeMove(final int tileLocation, final String tileChoice, final int rowChoice) {
+	public void makeMove(final int tileLocation, final String tileChoice, final int rowChoice)
+			throws IllegalArgumentException {
 
 	}
 

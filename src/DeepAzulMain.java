@@ -61,7 +61,47 @@ public class DeepAzulMain {
 			if (state.getCurrentPlayer() == aiPlayer) {
 				state = (AzulState) MCTS.search(state, 1000);
 			} else {
-				// TODO input human move
+				// get human move input
+				System.out.println("Player " + state.getCurrentPlayer() + "'s turn!");
+
+				int tileLocation = 0;
+				String tileChoice = "";
+				int rowChoice = 0;
+				tryAgain = true;
+
+				while (tryAgain) {
+					tryAgain = false;
+					System.out.print("Which tile location? Use 0 for the table, or 1-" + (2 * numPlayers + 1)
+							+ " for a display: ");
+					try {
+						tileLocation = Integer.parseInt(in.nextLine());
+					} catch (final NumberFormatException e) {
+						System.out.println("Please enter a number from 0-" + (2 * numPlayers + 1));
+						tryAgain = true;
+						continue;
+					}
+
+					System.out.print("Which color? Use one of {B, Y, R, K, W}: ");
+					tileChoice = in.nextLine().toUpperCase();
+
+					System.out.print("In which row on the player board will you place the tile(s)? Use 0-4: ");
+					try {
+						rowChoice = Integer.parseInt(in.nextLine());
+					} catch (final NumberFormatException e) {
+						System.out.println("Please enter a number from 0-4");
+						tryAgain = true;
+						continue;
+					}
+
+					try {
+						state.makeMove(tileLocation, tileChoice, rowChoice);
+					} catch (final IllegalArgumentException e) {
+						System.out.println(e.getMessage());
+						tryAgain = true;
+						continue;
+					}
+				}
+
 			}
 			System.out.println(state);
 		}
