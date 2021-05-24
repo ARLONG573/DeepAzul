@@ -237,6 +237,12 @@ public class AzulState implements GameState {
 		for (int i = 1; i < this.tileLocations.length; i++) {
 			for (int count = 0; count < 4; count++) {
 				final String tile = this.tileBag.drawRandomTile();
+
+				// if the lid and bag are out of tiles, just stop drawing
+				if (tile == null) {
+					return;
+				}
+
 				final Map<String, Integer> tilesToAdd = new HashMap<>();
 				tilesToAdd.put(tile, 1);
 				this.tileLocations[i].addTiles(tilesToAdd);

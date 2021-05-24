@@ -40,11 +40,16 @@ class TileBag {
 
 	/**
 	 * Draw a random tile and refill the bag with the tiles in the lid if necessary.
+	 * This method does nothing and returns null if both the lid and bag are empty.
 	 * 
 	 * @return One of {B, Y, R, K, W}, which represents the tile that was drawn
 	 */
 	String drawRandomTile() {
 		if (this.tilesInBag.isEmpty()) {
+			if (this.tilesInLid.isEmpty()) {
+				return null;
+			}
+
 			this.addLidTilesToBag();
 		}
 
