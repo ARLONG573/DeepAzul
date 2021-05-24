@@ -30,7 +30,6 @@ public class AzulState implements GameState {
 
 	private int lastPlayer;
 	private int currentPlayer;
-	private int currentRound;
 	private int nextRoundFirstPlayer;
 
 	/**
@@ -61,7 +60,6 @@ public class AzulState implements GameState {
 
 		this.lastPlayer = -1;
 		this.currentPlayer = 0;
-		this.currentRound = 1;
 		this.nextRoundFirstPlayer = -1;
 
 		this.refillDisplaysFromInput(in);
@@ -187,10 +185,9 @@ public class AzulState implements GameState {
 		}
 
 		// next round setup
-		this.currentRound++;
 		this.currentPlayer = this.nextRoundFirstPlayer;
 
-		if (this.currentRound <= 3) {
+		if (this.getWinningPlayers().isEmpty()) {
 			this.refillDisplaysFromInput(in);
 			((Table) this.tileLocations[0]).addFirstPlayerTile();
 			this.nextRoundFirstPlayer = -1;
@@ -283,7 +280,46 @@ public class AzulState implements GameState {
 	public List<Integer> getWinningPlayers() {
 		final List<Integer> winningPlayers = new ArrayList<>();
 
-		// TODO implement this method
+		// check if game is over
+		boolean isGameOver = false;
+		for (final PlayerBoard playerBoard : this.playerBoards) {
+			if (playerBoard.hasCompletedWallRow()) {
+				isGameOver = true;
+				break;
+			}
+		}
+
+		// if game is not over, there are no winners to report
+		if (!isGameOver) {
+			return winningPlayers;
+		}
+
+		// if game is over, winner is decided by final score, then by most completed
+		// rows
+		int finalScoreOfBest = -1;
+		int numCompletedWallRowsOfBest = -1;
+
+		for (int i = 0; i < this.playerBoards.length; i++) {
+			final int finalScore = this.playerBoards[i].getFinalScore();
+			final int numCompletedWallRows = this.playerBoards[i].getNumCompletedWallRows();
+
+			if (finalScore > finalScoreOfBest) {
+				winningPlayers.clear();
+				winningPlayers.add(i);
+
+				finalScoreOfBest = finalScore;
+				numCompletedWallRowsOfBest = numCompletedWallRows;
+			} else if (finalScore == finalScoreOfBest) {
+				if (numCompletedWallRows > numCompletedWallRowsOfBest) {
+					winningPlayers.clear();
+					winningPlayers.add(i);
+
+					numCompletedWallRowsOfBest = numCompletedWallRows;
+				} else if (numCompletedWallRows == numCompletedWallRowsOfBest) {
+					winningPlayers.add(i);
+				}
+			}
+		}
 
 		return winningPlayers;
 	}
@@ -297,7 +333,6 @@ public class AzulState implements GameState {
 		sb.append("===================================================================\n");
 		sb.append("Last Player = " + this.lastPlayer + "\n");
 		sb.append("Current Player = " + this.currentPlayer + "\n");
-		sb.append("Current Round = " + this.currentRound + "\n");
 		sb.append("Player to start next round = " + this.nextRoundFirstPlayer + "\n");
 		sb.append(this.tileBag);
 		for (final TileLocation tileLocation : this.tileLocations) {

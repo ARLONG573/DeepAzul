@@ -1,5 +1,6 @@
 package state;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -53,14 +54,201 @@ class PlayerBoard {
 	}
 
 	/**
+	 * @return The number of rows that this player board has completed on its wall
+	 */
+	int getNumCompletedWallRows() {
+		int numCompletedWallRows = 0;
+
+		for (int i = 0; i < 5; i++) {
+			boolean isCompletedRow = true;
+
+			for (int j = 0; j < 5; j++) {
+				if (this.wall[i][j].equals("_")) {
+					isCompletedRow = false;
+					break;
+				}
+			}
+
+			if (isCompletedRow) {
+				numCompletedWallRows++;
+			}
+		}
+
+		return numCompletedWallRows;
+	}
+
+	/**
+	 * @return The final score for this player board (score plus end-of-game
+	 *         bonuses)
+	 */
+	int getFinalScore() {
+		return this.score + 2 * this.getNumCompletedWallRows() + 7 * this.getNumCompletedWallColumns()
+				+ 10 * this.getNumCompletedColorSets();
+	}
+
+	/**
+	 * @return The number of columns that this player board has completed on its
+	 *         wall
+	 */
+	private int getNumCompletedWallColumns() {
+		int numCompletedWallColumns = 0;
+
+		for (int j = 0; j < 5; j++) {
+			boolean isCompletedColumn = true;
+
+			for (int i = 0; i < 5; i++) {
+				if (this.wall[i][j].equals("_")) {
+					isCompletedColumn = false;
+					break;
+				}
+			}
+
+			if (isCompletedColumn) {
+				numCompletedWallColumns++;
+			}
+		}
+
+		return numCompletedWallColumns;
+	}
+
+	/**
+	 * @return The number of colors on this player board that have all five of its
+	 *         tiles placed on the wall
+	 */
+	int getNumCompletedColorSets() {
+		final Map<String, Integer> colorFreqs = new HashMap<>();
+		colorFreqs.put("B", 0);
+		colorFreqs.put("Y", 0);
+		colorFreqs.put("R", 0);
+		colorFreqs.put("K", 0);
+		colorFreqs.put("W", 0);
+
+		for (int i = 0; i < 5; i++) {
+			for (int j = 0; j < 5; j++) {
+				if (!this.wall[i][j].equals("_")) {
+					final String color = this.wall[i][j];
+					colorFreqs.put(color, colorFreqs.get(color) + 1);
+				}
+			}
+		}
+
+		int numCompletedColorSets = 0;
+		for (final String color : colorFreqs.keySet()) {
+			if (colorFreqs.get(color) == 5) {
+				numCompletedColorSets++;
+			}
+		}
+
+		return numCompletedColorSets;
+	}
+
+	/**
+	 * @return Whether or not this player has completed a wall row
+	 */
+	boolean hasCompletedWallRow() {
+		return this.getNumCompletedWallRows() > 0;
+	}
+
+	/**
 	 * This method fills in wall tiles for completed pattern lines, removes tiles
-	 * from the floor line, and updates the score.
+	 * from the floor line, and updates the score. This method assumes that tile
+	 * placements have been legal up to this point.
 	 * 
 	 * @return A map containing the leftover tiles from completed pattern lines and
 	 *         the floor line that need to be sent to the lid of the box
 	 */
 	Map<String, Integer> doScoring() {
-		return null;
+		final Map<String, Integer> tilesToLid = new HashMap<>();
+
+		for (int i = 0; i < 5; i++) {
+			// determine if row is ready to be scored
+			boolean isRowFull = true;
+			for (int j = 4; j >= 4 - i; j--) {
+				if (this.patternLines[i][j].equals("_")) {
+					isRowFull = false;
+					break;
+				}
+			}
+
+			// if the row is ready to be scored, score it and add extra tiles to the lid
+			if (isRowFull) {
+				final String color = this.patternLines[i][4];
+				final int wallIndex = this.getIndexOfColorInWall(i, color);
+				this.wall[i][wallIndex] = color;
+
+				int tileScore = 0;
+
+				// horizontal
+				int rowLength = 1;
+				for (int left = wallIndex - 1; left >= 0 && !this.wall[i][left].equals("_"); left--) {
+					rowLength++;
+				}
+				for (int right = wallIndex + 1; right < 5 && !this.wall[i][right].equals("_"); right++) {
+					rowLength++;
+				}
+				tileScore += (rowLength == 1) ? 0 : rowLength;
+
+				// vertical
+				int colLength = 1;
+				for (int up = i - 1; up >= 0 && !this.wall[up][wallIndex].equals("_"); up--) {
+					colLength++;
+				}
+				for (int down = i + 1; down < 5 && !this.wall[down][wallIndex].equals("_"); down++) {
+					colLength++;
+				}
+				tileScore += (colLength == 1) ? 0 : colLength;
+
+				// if the tile is standalone, it is worth exactly one point
+				tileScore = Math.max(tileScore, 1);
+
+				// increment player score
+				this.score += tileScore;
+
+				// add necessary tiles to the lid
+				if (i > 0) {
+					tilesToLid.putIfAbsent(color, 0);
+					tilesToLid.put(color, tilesToLid.get(color) + i);
+				}
+			}
+		}
+
+		// handle floor line
+		for (int i = 0; i < 7 && !this.floorLine[i].equals("_"); i++) {
+			this.score -= FLOOR_LINE_VALUES[i];
+
+			if (!this.floorLine[i].equals("1")) {
+				final String color = this.floorLine[i];
+
+				tilesToLid.putIfAbsent(color, 0);
+				tilesToLid.put(color, tilesToLid.get(color) + 1);
+			}
+
+			this.floorLine[i] = "_";
+		}
+
+		// score cannot go below zero
+		this.score = Math.max(this.score, 0);
+
+		return tilesToLid;
+	}
+
+	/**
+	 * @param row
+	 *            Is assumed to be 0-4
+	 * @param color
+	 *            Is assumed to be in the set {B, Y, R, K, W}
+	 * @return The index at which the given color occurs in the wall in the given
+	 *         row
+	 */
+	private int getIndexOfColorInWall(final int row, final String color) {
+		for (int i = 0; i < 5; i++) {
+			if (WALL_PLACEMENTS[row][i].equals(color)) {
+				return i;
+			}
+		}
+
+		// this method should never reach this point
+		return -1;
 	}
 
 	/**
