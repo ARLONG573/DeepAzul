@@ -29,6 +29,17 @@ abstract class TileLocation {
 	}
 
 	/**
+	 * @return One of each tile that there is at least one of in this location
+	 */
+	String getTileChoices() {
+		final StringBuilder sb = new StringBuilder();
+		for (final String color : this.tiles.keySet()) {
+			sb.append(color);
+		}
+		return sb.toString();
+	}
+
+	/**
 	 * @param tilesToAdd
 	 *            A string representing the tiles to add to this location -
 	 *            tilesToAdd should match the regex pattern [BYRKW]{4}

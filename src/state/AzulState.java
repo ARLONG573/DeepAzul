@@ -179,7 +179,7 @@ public class AzulState implements GameState {
 
 			if (table.hasFirstPlayerTile()) {
 				table.removeFirstPlayerTile();
-				this.playerBoards[currentPlayer].addFirstPlayerTile();
+				this.playerBoards[this.currentPlayer].addFirstPlayerTile();
 				this.nextRoundFirstPlayer = this.currentPlayer;
 			}
 		} else {
@@ -340,32 +340,30 @@ public class AzulState implements GameState {
 
 		// try every combination of tile location, tile choice, and row choice and keep
 		// the ones that are valid
-		final String tileChoices = "BYRKW";
 
 		for (int tileLocation = 0; tileLocation < this.tileLocations.length; tileLocation++) {
+			// skip empty tiles locations
+			if (this.tileLocations[tileLocation].isEmpty()) {
+				continue;
+			}
+
+			// only use tile choices that are actually in the current tile location
+			final String tileChoices = this.tileLocations[tileLocation].getTileChoices();
+
 			for (int tileChoiceIndex = 0; tileChoiceIndex < tileChoices.length(); tileChoiceIndex++) {
 				final String tileChoice = tileChoices.substring(tileChoiceIndex, tileChoiceIndex + 1);
 
-				// prefer moves that put tiles into rows instead of the floor line
-				boolean madeLegalMove = false;
-				for (int rowChoice = 0; rowChoice < 5; rowChoice++) {
+				for (int rowChoice = -1; rowChoice < 5; rowChoice++) {
+					// skip illegal color placements
+					if (rowChoice != -1
+							&& !this.playerBoards[this.currentPlayer].isLegalPlacement(tileChoice, rowChoice)) {
+						continue;
+					}
+
 					final AzulState nextState = new AzulState(this);
 
 					try {
 						nextState.makeMove(tileLocation, tileChoice, rowChoice, false, false, null);
-					} catch (final IllegalArgumentException e) {
-						continue;
-					}
-
-					nextStates.add(nextState);
-					madeLegalMove = true;
-				}
-
-				if (!madeLegalMove) {
-					final AzulState nextState = new AzulState(this);
-
-					try {
-						nextState.makeMove(tileLocation, tileChoice, -1, false, false, null);
 					} catch (final IllegalArgumentException e) {
 						continue;
 					}

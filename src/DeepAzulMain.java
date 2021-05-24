@@ -60,7 +60,7 @@ public class DeepAzulMain {
 		while (state.getWinningPlayers().isEmpty()) {
 			if (state.getCurrentPlayer() == aiPlayer) {
 				System.out.println("AI is thinking...");
-				state = (AzulState) MCTS.search(state, 1000);
+				state = (AzulState) MCTS.search(state, 60);
 				System.out.println(state);
 
 				if (state.getWinningPlayers().isEmpty() && ((AzulState) state).isRoundOver()) {
