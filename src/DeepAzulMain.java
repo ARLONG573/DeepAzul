@@ -65,9 +65,8 @@ public class DeepAzulMain {
 
 				if (state.getWinningPlayers().isEmpty() && ((AzulState) state).isRoundOver()) {
 					((AzulState) state).refillDisplaysFromInput(in);
+					System.out.println(state);
 				}
-
-				System.out.println(state);
 			} else {
 				// get human move input
 				System.out.println("Player " + state.getCurrentPlayer() + "'s turn!");
