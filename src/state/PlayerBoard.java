@@ -53,6 +53,29 @@ class PlayerBoard {
 		this.score = 0;
 	}
 
+	PlayerBoard(final PlayerBoard board) {
+		this.patternLines = new String[5][5];
+		for (int i = 0; i < 5; i++) {
+			for (int j = 0; j < 5; j++) {
+				this.patternLines[i][j] = board.patternLines[i][j];
+			}
+		}
+
+		this.wall = new String[5][5];
+		for (int i = 0; i < 5; i++) {
+			for (int j = 0; j < 5; j++) {
+				this.wall[i][j] = board.wall[i][j];
+			}
+		}
+
+		this.floorLine = new String[7];
+		for (int i = 0; i < 7; i++) {
+			this.floorLine[i] = board.floorLine[i];
+		}
+
+		this.score = board.score;
+	}
+
 	/**
 	 * @return The number of rows that this player board has completed on its wall
 	 */

@@ -1,6 +1,7 @@
 package state;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
@@ -65,6 +66,28 @@ public class AzulState implements GameState {
 		this.refillDisplaysFromInput(in);
 	}
 
+	private AzulState(final AzulState state) {
+		this.tileBag = new TileBag(state.tileBag);
+
+		this.tileLocations = new TileLocation[state.tileLocations.length];
+		for (int i = 0; i < this.tileLocations.length; i++) {
+			if (i == 0) {
+				this.tileLocations[i] = new Table((Table) state.tileLocations[i]);
+			} else {
+				this.tileLocations[i] = new Display((Display) state.tileLocations[i]);
+			}
+		}
+
+		this.playerBoards = new PlayerBoard[state.playerBoards.length];
+		for (int i = 0; i < this.playerBoards.length; i++) {
+			this.playerBoards[i] = new PlayerBoard(state.playerBoards[i]);
+		}
+
+		this.lastPlayer = state.lastPlayer;
+		this.currentPlayer = state.currentPlayer;
+		this.nextRoundFirstPlayer = state.nextRoundFirstPlayer;
+	}
+
 	/**
 	 * This method applies the given move to the current state. If the move takes
 	 * the last tiles for the round, this method will update the game state as much
@@ -81,15 +104,23 @@ public class AzulState implements GameState {
 	 * @param rowChoice
 	 *            The index of the pattern line that the player will add the
 	 *            selected tiles to (use -1 to add directly to the floor line)
+	 * @param performRefill
+	 *            Whether or not a potentially necessary display refill will be
+	 *            performed (set to false when simulating)
+	 * @param randomRefill
+	 *            Whether or not any performed refills will be done randomly (as
+	 *            opposed to through user input) - this value does not matter if
+	 *            performRefill is false
 	 * @param in
 	 *            The Scanner used to read in the user input to refill the game
-	 *            displays
+	 *            displays - only necessary to define if performRefill is true and
+	 *            randomRefill is false
 	 * @throws IllegalArgumentException
 	 *             If the chosen tile location has no tiles to take, if tileLocation
 	 *             does not have the chosen tile, or if the chosen row is not legal
 	 */
-	public void makeMove(final int tileLocation, final String tileChoice, final int rowChoice, final Scanner in)
-			throws IllegalArgumentException {
+	public void makeMove(final int tileLocation, final String tileChoice, final int rowChoice,
+			final boolean performRefill, final boolean randomRefill, final Scanner in) throws IllegalArgumentException {
 
 		// check that the tile location is a valid number
 		if (tileLocation < 0 || tileLocation > this.tileLocations.length - 1) {
@@ -161,15 +192,7 @@ public class AzulState implements GameState {
 		this.lastPlayer = this.currentPlayer;
 
 		// if the round is not over, update current player and return
-		boolean roundOver = true;
-		for (final TileLocation location : this.tileLocations) {
-			if (!location.isEmpty()) {
-				roundOver = false;
-				break;
-			}
-		}
-
-		if (!roundOver) {
+		if (!this.isRoundOver()) {
 			this.currentPlayer = (this.currentPlayer < (this.tileLocations.length - 2) / 2 - 1) ? this.currentPlayer + 1
 					: 0;
 			return;
@@ -188,9 +211,31 @@ public class AzulState implements GameState {
 		this.currentPlayer = this.nextRoundFirstPlayer;
 
 		if (this.getWinningPlayers().isEmpty()) {
-			this.refillDisplaysFromInput(in);
+			if (performRefill) {
+				if (randomRefill) {
+					this.refillDisplaysRandomly();
+				} else {
+					this.refillDisplaysFromInput(in);
+				}
+			}
+
 			((Table) this.tileLocations[0]).addFirstPlayerTile();
 			this.nextRoundFirstPlayer = -1;
+		}
+	}
+
+	/**
+	 * Refills the displays randomly. This method assumes that all displays are
+	 * empty and that the table has no tiles on it.
+	 */
+	private void refillDisplaysRandomly() {
+		for (int i = 1; i < this.tileLocations.length; i++) {
+			for (int count = 0; count < 4; count++) {
+				final String tile = this.tileBag.drawRandomTile();
+				final Map<String, Integer> tilesToAdd = new HashMap<>();
+				tilesToAdd.put(tile, 1);
+				this.tileLocations[i].addTiles(tilesToAdd);
+			}
 		}
 	}
 
@@ -241,6 +286,21 @@ public class AzulState implements GameState {
 	}
 
 	/**
+	 * @return Whether or not the current round is over
+	 */
+	private boolean isRoundOver() {
+		boolean isRoundOver = true;
+		for (final TileLocation location : this.tileLocations) {
+			if (!location.isEmpty()) {
+				isRoundOver = false;
+				break;
+			}
+		}
+
+		return isRoundOver;
+	}
+
+	/**
 	 * @return The player who makes the next move from this state
 	 */
 	public int getCurrentPlayer() {
@@ -260,8 +320,36 @@ public class AzulState implements GameState {
 	 */
 	@Override
 	public List<GameState> getNextStates() {
-		// TODO Auto-generated method stub
-		return null;
+		final List<GameState> nextStates = new ArrayList<>();
+
+		// if the round is over, there are no simulatable next states
+		if (this.isRoundOver()) {
+			return nextStates;
+		}
+
+		// try every combination of tile location, tile choice, and row choice and keep
+		// the ones that are valid
+		final String tileChoices = "BYRKW";
+
+		for (int tileLocation = 0; tileLocation < this.tileLocations.length; tileLocation++) {
+			for (int tileChoiceIndex = 0; tileChoiceIndex < tileChoices.length(); tileChoiceIndex++) {
+				final String tileChoice = tileChoices.substring(tileChoiceIndex, tileChoiceIndex + 1);
+
+				for (int rowChoice = -1; rowChoice < 5; rowChoice++) {
+					final AzulState nextState = new AzulState(this);
+
+					try {
+						nextState.makeMove(tileLocation, tileChoice, rowChoice, false, false, null);
+					} catch (final IllegalArgumentException e) {
+						continue;
+					}
+
+					nextStates.add(nextState);
+				}
+			}
+		}
+
+		return nextStates;
 	}
 
 	/**

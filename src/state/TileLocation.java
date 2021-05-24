@@ -24,6 +24,10 @@ abstract class TileLocation {
 		this.tiles = new HashMap<>();
 	}
 
+	TileLocation(final TileLocation location) {
+		this.tiles = new HashMap<>(location.tiles);
+	}
+
 	/**
 	 * @param tilesToAdd
 	 *            A string representing the tiles to add to this location -

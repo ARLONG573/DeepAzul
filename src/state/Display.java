@@ -7,6 +7,14 @@ package state;
  */
 class Display extends TileLocation {
 
+	Display() {
+		super();
+	}
+
+	Display(final Display display) {
+		super(display);
+	}
+
 	/**
 	 * {@inheritDoc}
 	 */

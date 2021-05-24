@@ -16,6 +16,12 @@ class Table extends TileLocation {
 		this.hasFirstPlayerTile = true;
 	}
 
+	Table(final Table table) {
+		super(table);
+
+		this.hasFirstPlayerTile = table.hasFirstPlayerTile;
+	}
+
 	/**
 	 * @return Whether or not the table still has the first player tile
 	 */

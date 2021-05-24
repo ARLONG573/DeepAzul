@@ -33,6 +33,47 @@ class TileBag {
 		this.tilesInLid = new HashMap<>();
 	}
 
+	TileBag(final TileBag bag) {
+		this.tilesInBag = new HashMap<>(bag.tilesInBag);
+		this.tilesInLid = new HashMap<>(bag.tilesInLid);
+	}
+
+	/**
+	 * Draw a random tile and refill the bag with the tiles in the lid if necessary.
+	 * 
+	 * @return One of {B, Y, R, K, W}, which represents the tile that was drawn
+	 */
+	String drawRandomTile() {
+		if (this.tilesInBag.isEmpty()) {
+			this.addLidTilesToBag();
+		}
+
+		int numTilesInBag = 0;
+		for (final Integer count : this.tilesInBag.values()) {
+			numTilesInBag += count;
+		}
+
+		final String[] tiles = new String[numTilesInBag];
+		int index = 0;
+
+		for (final String color : this.tilesInBag.keySet()) {
+			for (int i = 0; i < this.tilesInBag.get(color); i++) {
+				tiles[index] = color;
+				index++;
+			}
+		}
+
+		final int randomIndex = (int) (Math.random() * numTilesInBag);
+		final String removedTile = tiles[randomIndex];
+
+		this.tilesInBag.put(removedTile, this.tilesInBag.get(removedTile) - 1);
+		if (this.tilesInBag.get(removedTile) == 0) {
+			this.tilesInBag.remove(removedTile);
+		}
+
+		return removedTile;
+	}
+
 	/**
 	 * @param numTiles
 	 *            The number of tiles to add

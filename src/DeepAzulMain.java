@@ -96,7 +96,7 @@ public class DeepAzulMain {
 					}
 
 					try {
-						state.makeMove(tileLocation, tileChoice, rowChoice, in);
+						state.makeMove(tileLocation, tileChoice, rowChoice, true, false, in);
 					} catch (final IllegalArgumentException e) {
 						System.out.println(e.getMessage());
 						tryAgain = true;
