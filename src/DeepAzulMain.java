@@ -59,7 +59,15 @@ public class DeepAzulMain {
 		// game play loop
 		while (state.getWinningPlayers().isEmpty()) {
 			if (state.getCurrentPlayer() == aiPlayer) {
+				System.out.println("AI is thinking...");
 				state = (AzulState) MCTS.search(state, 1000);
+				System.out.println(state);
+
+				if (state.getWinningPlayers().isEmpty() && ((AzulState) state).isRoundOver()) {
+					((AzulState) state).refillDisplaysFromInput(in);
+				}
+
+				System.out.println(state);
 			} else {
 				// get human move input
 				System.out.println("Player " + state.getCurrentPlayer() + "'s turn!");
@@ -104,8 +112,8 @@ public class DeepAzulMain {
 					}
 				}
 
+				System.out.println(state);
 			}
-			System.out.println(state);
 		}
 
 		in.close();

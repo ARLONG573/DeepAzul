@@ -227,6 +227,11 @@ class PlayerBoard {
 				// increment player score
 				this.score += tileScore;
 
+				// clear the row
+				for (int j = 4 - i; j < 5; j++) {
+					this.patternLines[i][j] = "_";
+				}
+
 				// add necessary tiles to the lid
 				if (i > 0) {
 					tilesToLid.putIfAbsent(color, 0);
@@ -237,7 +242,7 @@ class PlayerBoard {
 
 		// handle floor line
 		for (int i = 0; i < 7 && !this.floorLine[i].equals("_"); i++) {
-			this.score -= FLOOR_LINE_VALUES[i];
+			this.score += FLOOR_LINE_VALUES[i];
 
 			if (!this.floorLine[i].equals("1")) {
 				final String color = this.floorLine[i];
@@ -361,7 +366,7 @@ class PlayerBoard {
 	@Override
 	public String toString() {
 		final StringBuilder sb = new StringBuilder();
-		sb.append("Score = " + this.score + "\n");
+		sb.append("Score = " + (this.getNumCompletedWallRows() > 0 ? this.getFinalScore() : this.score) + "\n");
 		sb.append("Pattern lines = \n");
 		for (int i = 0; i < 5; i++) {
 			for (int j = 0; j < 5; j++) {

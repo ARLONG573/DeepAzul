@@ -208,7 +208,12 @@ public class AzulState implements GameState {
 		}
 
 		// next round setup
-		this.currentPlayer = this.nextRoundFirstPlayer;
+		if (this.nextRoundFirstPlayer != -1) {
+			this.currentPlayer = this.nextRoundFirstPlayer;
+		} else {
+			this.currentPlayer = (this.currentPlayer < (this.tileLocations.length - 2) / 2 - 1) ? this.currentPlayer + 1
+					: 0;
+		}
 
 		if (this.getWinningPlayers().isEmpty()) {
 			if (performRefill) {
@@ -246,7 +251,7 @@ public class AzulState implements GameState {
 	 * @param in
 	 *            The Scanner used to read in the user input
 	 */
-	private void refillDisplaysFromInput(final Scanner in) {
+	public void refillDisplaysFromInput(final Scanner in) {
 		System.out.println("Refilling displays from input...");
 
 		// check that all tile locations are empty before taking in user input
@@ -288,7 +293,7 @@ public class AzulState implements GameState {
 	/**
 	 * @return Whether or not the current round is over
 	 */
-	private boolean isRoundOver() {
+	public boolean isRoundOver() {
 		boolean isRoundOver = true;
 		for (final TileLocation location : this.tileLocations) {
 			if (!location.isEmpty()) {
@@ -335,11 +340,26 @@ public class AzulState implements GameState {
 			for (int tileChoiceIndex = 0; tileChoiceIndex < tileChoices.length(); tileChoiceIndex++) {
 				final String tileChoice = tileChoices.substring(tileChoiceIndex, tileChoiceIndex + 1);
 
-				for (int rowChoice = -1; rowChoice < 5; rowChoice++) {
+				// prefer moves that put tiles into rows instead of the floor line
+				boolean madeLegalMove = false;
+				for (int rowChoice = 0; rowChoice < 5; rowChoice++) {
 					final AzulState nextState = new AzulState(this);
 
 					try {
 						nextState.makeMove(tileLocation, tileChoice, rowChoice, false, false, null);
+					} catch (final IllegalArgumentException e) {
+						continue;
+					}
+
+					nextStates.add(nextState);
+					madeLegalMove = true;
+				}
+
+				if (!madeLegalMove) {
+					final AzulState nextState = new AzulState(this);
+
+					try {
+						nextState.makeMove(tileLocation, tileChoice, -1, false, false, null);
 					} catch (final IllegalArgumentException e) {
 						continue;
 					}
@@ -357,11 +377,13 @@ public class AzulState implements GameState {
 	 */
 	@Override
 	public GameState getRandomNextState() {
-		if (this.isRoundOver()) {
-			this.refillDisplaysRandomly();
+		final AzulState copy = new AzulState(this);
+
+		if (copy.isRoundOver()) {
+			copy.refillDisplaysRandomly();
 		}
 
-		final List<GameState> nextStates = this.getNextStates();
+		final List<GameState> nextStates = copy.getNextStates();
 		final int randomIndex = (int) (Math.random() * nextStates.size());
 		return nextStates.get(randomIndex);
 	}
