@@ -353,7 +353,10 @@ public class AzulState implements GameState {
 			for (int tileChoiceIndex = 0; tileChoiceIndex < tileChoices.length(); tileChoiceIndex++) {
 				final String tileChoice = tileChoices.substring(tileChoiceIndex, tileChoiceIndex + 1);
 
-				for (int rowChoice = -1; rowChoice < 5; rowChoice++) {
+				// prefer moves that do not put tiles into the floor line only
+				boolean madeLegalMove = false;
+
+				for (int rowChoice = 0; rowChoice < 5; rowChoice++) {
 					// skip illegal color placements
 					if (rowChoice != -1
 							&& !this.playerBoards[this.currentPlayer].isLegalPlacement(tileChoice, rowChoice)) {
@@ -364,6 +367,19 @@ public class AzulState implements GameState {
 
 					try {
 						nextState.makeMove(tileLocation, tileChoice, rowChoice, false, false, null);
+					} catch (final IllegalArgumentException e) {
+						continue;
+					}
+
+					nextStates.add(nextState);
+					madeLegalMove = true;
+				}
+
+				if (!madeLegalMove) {
+					final AzulState nextState = new AzulState(this);
+
+					try {
+						nextState.makeMove(tileLocation, tileChoice, -1, false, false, null);
 					} catch (final IllegalArgumentException e) {
 						continue;
 					}
