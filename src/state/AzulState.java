@@ -322,7 +322,7 @@ public class AzulState implements GameState {
 	public List<GameState> getNextStates() {
 		final List<GameState> nextStates = new ArrayList<>();
 
-		// if the round is over, there are no simulatable next states
+		// if the round is over, then this state is not expandable
 		if (this.isRoundOver()) {
 			return nextStates;
 		}
@@ -357,8 +357,13 @@ public class AzulState implements GameState {
 	 */
 	@Override
 	public GameState getRandomNextState() {
-		// TODO Auto-generated method stub
-		return null;
+		if (this.isRoundOver()) {
+			this.refillDisplaysRandomly();
+		}
+
+		final List<GameState> nextStates = this.getNextStates();
+		final int randomIndex = (int) (Math.random() * nextStates.size());
+		return nextStates.get(randomIndex);
 	}
 
 	/**
