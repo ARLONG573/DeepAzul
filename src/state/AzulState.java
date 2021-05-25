@@ -273,6 +273,44 @@ public class AzulState implements GameState {
 		// drawing them ourselves randomly
 		if (this.tileBag.getNumTilesRemaining() < 4 * (this.tileLocations.length - 1)) {
 			this.tileBag.addLidTilesToBag();
+
+			// if there are still not enough tiles to fill the displays, then we will have
+			// to deal with incomplete displays
+			if (this.tileBag.getNumTilesRemaining() < 4 * (this.tileLocations.length - 1)) {
+				System.out.println(
+						"There are not enough tiles to fill all of the displays, so we will draw them one at a time until the bag is empty.");
+
+				for (int i = 1; i < this.tileLocations.length; i++) {
+					if (this.tileBag.isBagEmpty()) {
+						break;
+					}
+
+					for (int count = 1; count <= 4; count++) {
+						if (this.tileBag.isBagEmpty()) {
+							break;
+						}
+
+						String newTile = null;
+						boolean tryAgain = true;
+
+						while (tryAgain) {
+							tryAgain = false;
+							System.out.print("Tile " + count + " for display " + i + ": ");
+							newTile = in.nextLine().toUpperCase();
+							try {
+								this.tileBag.removeSingleTile(newTile);
+								
+								final Map<String, Integer> tilesToAdd = new HashMap<>();
+								tilesToAdd.put(newTile, 1);
+								this.tileLocations[i].addTiles(tilesToAdd);
+							} catch (final IllegalArgumentException e) {
+								System.out.println(e.getMessage());
+								tryAgain = true;
+							}
+						}
+					}
+				}
+			}
 		}
 
 		// read in user input and add to the displays from the bag

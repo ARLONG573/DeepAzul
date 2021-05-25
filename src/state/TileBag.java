@@ -39,6 +39,37 @@ class TileBag {
 	}
 
 	/**
+	 * @param tile
+	 *            The tile to remove, which should be represented by one of {B, Y,
+	 *            R, K, W}
+	 * @throws IllegalArgumentException
+	 *             If the tile is not in the valid set of tiles, or if the tile is
+	 *             not in the bag
+	 */
+	void removeSingleTile(final String tile) throws IllegalArgumentException {
+		if (!Pattern.matches("[BYRKW]", tile)) {
+			throw new IllegalArgumentException("Tile must be one of {BYRKW}");
+		}
+
+		if (this.tilesInBag.get(tile) == null) {
+			throw new IllegalArgumentException("Tried to remove " + tile + " from the bag, but there are none left");
+		}
+
+		this.tilesInBag.put(tile, this.tilesInBag.get(tile) - 1);
+
+		if (this.tilesInBag.get(tile) == 0) {
+			this.tilesInBag.remove(tile);
+		}
+	}
+
+	/**
+	 * @return Whether or not the tile bag is empty
+	 */
+	boolean isBagEmpty() {
+		return this.tilesInBag.isEmpty();
+	}
+
+	/**
 	 * Draw a random tile and refill the bag with the tiles in the lid if necessary.
 	 * This method does nothing and returns null if both the lid and bag are empty.
 	 * 
