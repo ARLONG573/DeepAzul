@@ -366,7 +366,7 @@ class PlayerBoard {
 	@Override
 	public String toString() {
 		final StringBuilder sb = new StringBuilder();
-		sb.append("Score = " + (this.getNumCompletedWallRows() > 0 ? this.getFinalScore() : this.score) + "\n");
+		sb.append("Final score = " + this.getFinalScore() + "\n");
 		sb.append("Pattern lines = \n");
 		for (int i = 0; i < 5; i++) {
 			for (int j = 0; j < 5; j++) {
